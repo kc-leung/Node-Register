@@ -1,15 +1,32 @@
 const jwt = require("jsonwebtoken");
 
-module.exports = function(req, res, next) {
+const verifyLoginToken = (req, res, next) => {
   //Must match created token name tag!!
   const token = req.header("auth-token");
   if (!token) return res.status(401).send("Access Denied");
 
   try {
-    const verified = jwt.verify(token, process.env.TOKEN_SECRET);
+    const verified = jwt.verify(token, process.env.LOGIN_TOKEN);
     req.user = verified;
     next();
   } catch (err) {
     res.status(400).send("Invalid Token");
   }
 };
+
+const verifyEmailToken = (req, res, next) => {
+  //Must match created token name tag!!
+  const token = req.header("email-token");
+  if (!token) return res.status(401).send("Access Denied");
+
+  try {
+    const verified = jwt.verify(token, process.env.EMAIL_TOKEN);
+    req.user = verified;
+    next();
+  } catch (err) {
+    res.status(400).send("Invalid Token");
+  }
+};
+
+module.exports.verifyLoginToken = verifyLoginToken;
+module.exports.verifyEmailToken = verifyEmailToken;

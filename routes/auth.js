@@ -2,6 +2,8 @@ const router = require("express").Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+const transporter = require("../transporter");
+
 const User = require("../models/User");
 
 const registerValidation = require("../validations/registerValidation");
@@ -31,6 +33,22 @@ router.post("/register", async (req, res) => {
   try {
     const savedUser = await user.save();
     res.send(savedUser);
+    // //Create an email token and its header name tag
+    // const token = jwt.sign(
+    //   { _id: savedUser._id },
+    //   process.env.EMAIL_TOKEN,
+    //   { expiresIn: "1d" },
+    //   (err, emailToken) => {
+    //     const url = `http://localhost:3000/confirmation/${emailToken}`;
+
+    //     transporter.sendMail({
+    //       to: savedUser.email,
+    //       subject: "Confirm Email",
+    //       html: `Please click this email to confirm your email: <a href="${url}">${url}</a>`
+    //     });
+    //   }
+    // );
+    // res.header("email-token", token).send(token);
   } catch (err) {
     res.status(400).send(err);
   }
@@ -39,7 +57,7 @@ router.post("/register", async (req, res) => {
 //Login
 router.post("/login", async (req, res) => {
   //Validate data before creating the user
-  const { error } = registerValidation(req.body);
+  const { error } = loginValidation(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
   //Verify if the user already exits
@@ -55,7 +73,7 @@ router.post("/login", async (req, res) => {
   if (!validPassword) return res.status(400).send("Email or Password is Wrong");
 
   //Create an user logged in token and its header name tag
-  const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET);
+  const token = jwt.sign({ _id: user._id }, process.env.LOGIN_TOKEN);
   res.header("auth-token", token).send(token);
 
   res.send("Logged In!");

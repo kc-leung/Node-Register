@@ -1,7 +1,7 @@
 const router = require("express").Router();
-const verify = require("./verifyToken");
+const { verifyLoginToken } = require("./verifyToken");
 
-router.get("/", verify, (req, res) => {
+router.get("/", verifyLoginToken, (req, res) => {
   res.json(req.user);
 });
 
